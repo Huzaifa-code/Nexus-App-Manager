@@ -1,4 +1,4 @@
-# Nexus App Manager
+# <img src="src-tauri/icons/icon.png" width="40" height="40" align="center"> Nexus App Manager
 
 **Nexus App Manager** is a modern, high-performance application manager for Linux distributions. Built with **Tauri 2** and **React**, it provides a unified, blazing-fast interface to manage **APT**, **Snap**, and **Flatpak** packages all in one place.
 
