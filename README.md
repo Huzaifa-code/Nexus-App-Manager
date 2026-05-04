@@ -1,10 +1,16 @@
-# 🚀 Nexus App Manager
+# Nexus App Manager
 
 **Nexus App Manager** is a modern, high-performance application manager for Linux distributions. Built with **Tauri 2** and **React**, it provides a unified, blazing-fast interface to manage **APT**, **Snap**, and **Flatpak** packages all in one place.
 
-![Nexus App Manager Mockup](/home/huzaifaq/.gemini/antigravity/brain/ab96d0e9-5ed0-41f3-9aea-497f556639c1/nexus_app_manager_mockup_1777834848113.png)
+![Nexus App Manager](screenshots/nexus-app.png)
 
-## ✨ Key Features
+## Screenshots
+
+| Main Dashboard | About Page |
+| :---: | :---: |
+| ![Main Dashboard](screenshots/nexus-app.png) | ![About Page](screenshots/about.png) |
+
+## Key Features
 
 - **Unified Management**: Handle APT, Snap, and Flatpak packages from a single dashboard.
 - **Blazing Fast**: Optimized Rust backend with SQLite3 caching delivers near-instant load times (up to 10,000x faster for APT operations).
@@ -13,14 +19,14 @@
 - **Smart Filtering**: Automatically filters out system packages to show only relevant desktop applications.
 - **Safe & Secure**: Leverages Rust's memory safety and Tauri's secure IPC bridge.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 18, Tailwind CSS, Vite
 - **Backend**: Rust, Tauri 2
 - **Database**: SQLite3 (via rusqlite)
 - **Icons**: React Icons
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -32,7 +38,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/nexus-app-manager.git
+   git clone https://github.com/Huzaifa-code/Nexus-App-Manager.git
    cd nexus-app-manager
    ```
 
@@ -46,7 +52,7 @@
    npm run tauri dev
    ```
 
-## 📖 Documentation
+## Documentation
 
 - [Architecture Overview](ARCHITECTURE.md) - Deep dive into the system design and data flow.
 - [Development & Debugging](DEVELOPMENT.md) - Technical notes on cache, icons, and debugging.

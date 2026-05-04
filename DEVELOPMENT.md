@@ -44,3 +44,12 @@ To update the application icon, place a `icon.png` file (1024x1024 pixels) in `s
 # From the project root:
 npm exec -- tauri icon src-tauri/icons/icon.png
 ```
+
+## Building for Release
+
+### Bundle as Deb Package
+```bash
+npm run tauri build -- --bundles deb
+```
+The generated `.deb` file will be located in the `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb` directory.
+

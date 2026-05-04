@@ -17,7 +17,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
   const [selectedAppForDetails, setSelectedAppForDetails] = useState(null);
-  
+
   const { apps: tabApps, loading: tabLoading, loadingMore: tabLoadingMore, reloadApps: reloadTabApps, loadMore: loadMoreTab, hasMore: tabHasMore } = useApps(activeTab);
   const { apps: globalApps, loading: globalLoading, reloadApps: reloadGlobalApps } = useGlobalApps();
   const { uninstalling, handleUninstall } = useUninstall(() => {
@@ -45,7 +45,6 @@ function App() {
   return (
     <div className="flex h-screen bg-transparent">
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
-      
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'about' ? (
           <About />
@@ -60,7 +59,7 @@ function App() {
               isGlobalSearch={isGlobalSearch}
               onGlobalSearchChange={setIsGlobalSearch}
             />
-            
+
             <div className="flex-1 overflow-y-auto p-6">
               <AppList
                 apps={apps}
@@ -78,8 +77,8 @@ function App() {
         )}
       </div>
 
-      <AppDetailsModal 
-        app={selectedAppForDetails} 
+      <AppDetailsModal
+        app={selectedAppForDetails}
         onClose={() => setSelectedAppForDetails(null)}
         onUninstall={handleUninstall}
         isUninstalling={uninstalling === selectedAppForDetails?.name}

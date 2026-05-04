@@ -1,5 +1,6 @@
 import React from "react";
 import { FiGithub, FiInfo, FiHeart, FiCode, FiExternalLink } from "react-icons/fi";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 const About = () => {
   return (
@@ -14,11 +15,17 @@ const About = () => {
           <p className="text-gray-500 font-medium mb-6">Version 0.1.0</p>
           
           <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-full font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all active:scale-95">
+            <button 
+              onClick={() => openUrl("https://github.com/Huzaifa-code/Nexus-App-Manager")}
+              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-full font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all active:scale-95"
+            >
               <FiGithub className="w-5 h-5" />
               <span>GitHub Repository</span>
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 text-gray-900 rounded-full font-bold shadow-sm hover:bg-gray-50 transition-all active:scale-95">
+            <button 
+              onClick={() => openUrl("https://github.com/Huzaifa-code/Nexus-App-Manager/releases")}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 text-gray-900 rounded-full font-bold shadow-sm hover:bg-gray-50 transition-all active:scale-95"
+            >
               <FiExternalLink className="w-5 h-5" />
               <span>Release Notes</span>
             </button>
