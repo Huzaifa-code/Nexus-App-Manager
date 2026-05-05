@@ -39,7 +39,9 @@ export const useGlobalApps = () => {
             await appService.saveCache(manager, fetchedApps || []);
             return fetchedApps || [];
           } catch (err) {
-            console.error(`Error loading apps for ${manager}:`, err);
+            if (err.message !== "Request aborted" && err.name !== "AbortError") {
+              console.error(`Error loading apps for ${manager}:`, err);
+            }
             return []; // Return empty array for this manager instead of failing the whole thing
           }
         })

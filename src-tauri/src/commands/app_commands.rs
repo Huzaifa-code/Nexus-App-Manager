@@ -71,3 +71,8 @@ pub async fn open_path(path: String) -> Result<(), String> {
     
     Ok(())
 }
+
+#[tauri::command]
+pub async fn read_image_bytes(path: String) -> Result<Vec<u8>, String> {
+    std::fs::read(&path).map_err(|e| format!("Failed to read image: {}", e))
+}

@@ -9,5 +9,6 @@ pub struct AppInfo {
     pub description: String,
     pub manager: String, // "apt", "snap", or "flatpak"
     pub homepage: Option<String>,
+    pub icon: Option<String>,
 }
 

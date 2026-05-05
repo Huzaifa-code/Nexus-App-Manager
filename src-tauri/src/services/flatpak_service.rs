@@ -36,6 +36,20 @@ pub fn get_flatpak_apps() -> Result<Vec<AppInfo>, String> {
                 format!("Flatpak application: {}", display_name)
             });
         
+        let icon = {
+            let mut paths = vec![
+                format!("/var/lib/flatpak/exports/share/icons/hicolor/scalable/apps/{}.svg", full_id),
+                format!("/var/lib/flatpak/exports/share/icons/hicolor/128x128/apps/{}.png", full_id),
+                format!("/var/lib/flatpak/exports/share/icons/hicolor/64x64/apps/{}.png", full_id),
+            ];
+            
+            if let Some(home) = dirs::home_dir() {
+                paths.push(format!("{}/.local/share/flatpak/exports/share/icons/hicolor/scalable/apps/{}.svg", home.display(), full_id));
+            }
+            
+            paths.into_iter().find(|p| std::path::Path::new(p).exists())
+        };
+
         apps.push(AppInfo {
             name: full_id.to_string(),
             version,
@@ -44,6 +58,7 @@ pub fn get_flatpak_apps() -> Result<Vec<AppInfo>, String> {
             description,
             manager: "flatpak".to_string(),
             homepage: None,
+            icon,
         });
     }
 

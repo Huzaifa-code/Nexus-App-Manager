@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { FiX, FiPackage, FiInfo, FiFolder, FiCpu, FiUser, FiExternalLink, FiLayers, FiShield, FiTrash2 } from "react-icons/fi";
 import { getManagerIcon, getDisplayName } from "../utils/appUtils";
 import appService from "../services/appService";
@@ -7,6 +8,28 @@ const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
   if (!app) return null;
 
   const displayName = getDisplayName(app);
+  const [iconSrc, setIconSrc] = useState(null);
+
+  useEffect(() => {
+    let url = null;
+    if (app.icon) {
+      invoke('read_image_bytes', { path: app.icon })
+        .then(bytes => {
+          const ext = app.icon.split('.').pop().toLowerCase();
+          const mimeType = ext === 'svg' ? 'image/svg+xml' : (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png');
+          const blob = new Blob([new Uint8Array(bytes)], { type: mimeType });
+          url = URL.createObjectURL(blob);
+          setIconSrc(url);
+        })
+        .catch(err => {
+            console.error("Failed to load icon bytes:", err);
+            setIconSrc(null);
+        });
+    }
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [app.icon]);
 
   const handleOpenPath = () => {
     if (app.path) {
@@ -27,8 +50,24 @@ const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
         {/* Header */}
         <div className="p-8 pb-4 flex items-start justify-between">
           <div className="flex items-center gap-5">
-            <div className="p-4 bg-gray-50 rounded-2xl text-gray-600">
-              {getManagerIcon(app.manager)}
+            <div className="p-4 bg-gray-50 rounded-2xl transition-colors flex-shrink-0 w-20 h-20 flex items-center justify-center overflow-hidden">
+              {iconSrc ? (
+                <img 
+                  src={iconSrc} 
+                  alt={displayName} 
+                  className="w-16 h-16 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+              ) : null}
+              <div 
+                className="text-gray-600"
+                style={{ display: iconSrc ? 'none' : 'block' }}
+              >
+                {getManagerIcon(app.manager, "w-10 h-10")}
+              </div>
             </div>
             <div>
               <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{displayName}</h2>

@@ -1,5 +1,10 @@
 # <img src="src-tauri/icons/icon.png" width="40" height="40" align="center"> Nexus App Manager
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Huzaifa-code/Nexus-App-Manager/releases)
+[![Tauri](https://img.shields.io/badge/built%20with-Tauri-blue)](https://tauri.app/)
+[![React](https://img.shields.io/badge/frontend-React-61dafb)](https://reactjs.org/)
+
 **Nexus App Manager** is a modern, high-performance application manager for Linux distributions. Built with **Tauri 2** and **React**, it provides a unified, blazing-fast interface to manage **APT**, **Snap**, and **Flatpak** packages all in one place.
 
 ![Nexus App Manager](screenshots/nexus-app.png)

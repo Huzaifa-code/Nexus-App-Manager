@@ -57,6 +57,13 @@ pub fn get_snap_apps() -> Result<Vec<AppInfo>, String> {
                 "Unknown".to_string()
             };
             
+            let icon_path = format!("/snap/{}/current/meta/gui/icon.png", name);
+            let icon = if std::path::Path::new(&icon_path).exists() {
+                Some(icon_path)
+            } else {
+                None
+            };
+
             apps.push(AppInfo {
                 name: name.to_string(),
                 version: parts[1].to_string(),
@@ -65,6 +72,7 @@ pub fn get_snap_apps() -> Result<Vec<AppInfo>, String> {
                 description: format!("Snap package: {}", name),
                 manager: "snap".to_string(),
                 homepage: None,
+                icon,
             });
         }
     }

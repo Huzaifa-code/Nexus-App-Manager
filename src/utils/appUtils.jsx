@@ -8,16 +8,16 @@ export const PACKAGE_MANAGERS = {
   FLATPAK: "flatpak",
 };
 
-export const getManagerIcon = (manager) => {
-  const iconProps = { className: "w-5 h-5" };
+export const getManagerIcon = (manager, className = "w-5 h-5") => {
+  const iconProps = { className };
   
   switch (manager) {
     case PACKAGE_MANAGERS.APT:
-      return <SiDebian {...iconProps} className="w-5 h-5 text-orange-500" />;
+      return <SiDebian {...iconProps} className={`${className} text-orange-500`} />;
     case PACKAGE_MANAGERS.SNAP:
-      return <SiSnapcraft {...iconProps} className="w-5 h-5 text-blue-500" />;
+      return <SiSnapcraft {...iconProps} className={`${className} text-blue-500`} />;
     case PACKAGE_MANAGERS.FLATPAK:
-      return <SiFlatpak {...iconProps} className="w-5 h-5 text-green-500" />;
+      return <SiFlatpak {...iconProps} className={`${className} text-green-500`} />;
     default:
       return <FiPackage {...iconProps} />;
   }

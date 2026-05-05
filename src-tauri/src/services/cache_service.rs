@@ -101,6 +101,19 @@ impl CacheService {
             conn.execute("ALTER TABLE cached_apps ADD COLUMN homepage TEXT", [])?;
         }
 
+        let has_icon: bool = conn.query_row(
+            "SELECT count(*) FROM pragma_table_info('cached_apps') WHERE name='icon'",
+            [],
+            |row| {
+                let count: i32 = row.get(0)?;
+                Ok(count > 0)
+            },
+        ).unwrap_or(false);
+
+        if !has_icon {
+            conn.execute("ALTER TABLE cached_apps ADD COLUMN icon TEXT", [])?;
+        }
+
         Ok(())
     }
 
@@ -136,7 +149,7 @@ impl CacheService {
 
                 // load per-app rows
                 let mut stmt = conn.prepare(
-                    "SELECT name, version, size, path, description FROM cached_apps WHERE manager_id = ?1 ORDER BY id",
+                    "SELECT name, version, size, path, description, homepage, icon FROM cached_apps WHERE manager_id = ?1 ORDER BY id",
                 ).map_err(|e| format!("Failed to prepare statement: {}", e))?;
 
                 let apps_iter = stmt
@@ -148,7 +161,8 @@ impl CacheService {
                             path: row.get(3)?,
                             description: row.get(4)?,
                             manager: manager.to_string(),
-                            homepage: None,
+                            homepage: row.get(5)?,
+                            icon: row.get(6)?,
                         })
                     })
                     .map_err(|e| format!("Failed to query cached apps: {}", e))?;
@@ -201,12 +215,21 @@ impl CacheService {
 
         // insert new rows
         let mut insert_stmt = tx.prepare(
-            "INSERT INTO cached_apps (manager_id, name, version, size, path, description) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
+            "INSERT INTO cached_apps (manager_id, name, version, size, path, description, homepage, icon) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)"
         ).map_err(|e| format!("Failed to prepare insert: {}", e))?;
 
         for app in apps {
-            insert_stmt.execute(params![manager_type.id(), app.name, app.version, app.size, app.path, app.description])
-                .map_err(|e| format!("Failed to insert cached app: {}", e))?;
+            insert_stmt.execute(params![
+                manager_type.id(), 
+                app.name, 
+                app.version, 
+                app.size, 
+                app.path, 
+                app.description,
+                app.homepage,
+                app.icon
+            ])
+            .map_err(|e| format!("Failed to insert cached app: {}", e))?;
         }
 
         // drop statement before committing transaction to avoid borrow issues

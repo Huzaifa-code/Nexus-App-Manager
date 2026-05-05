@@ -77,6 +77,7 @@ pub fn get_apt_apps_paginated(offset: usize, limit: usize) -> Result<(Vec<AppInf
             };
             
             let path = find_apt_binary_path(&name);
+            let icon = find_apt_icon(&name);
             
             AppInfo {
                 name: name.clone(),
@@ -86,6 +87,7 @@ pub fn get_apt_apps_paginated(offset: usize, limit: usize) -> Result<(Vec<AppInf
                 description,
                 manager: "apt".to_string(),
                 homepage: None,
+                icon,
             }
         })
         .collect();
@@ -132,6 +134,65 @@ fn find_apt_binary_path(pkg: &str) -> String {
 
     // 3. Final default
     format!("/usr/bin/{}", pkg)
+}
+
+fn find_apt_icon(pkg: &str) -> Option<String> {
+    let desktop_path = format!("/usr/share/applications/{}.desktop", pkg);
+    if let Ok(content) = std::fs::read_to_string(&desktop_path) {
+        for line in content.lines() {
+            if line.starts_with("Icon=") {
+                let icon_val = line.strip_prefix("Icon=").unwrap_or("").trim().to_string();
+                if icon_val.is_empty() {
+                    return None;
+                }
+                
+                // If it's an absolute path, return it
+                if icon_val.starts_with('/') {
+                    if Path::new(&icon_val).exists() {
+                        return Some(icon_val);
+                    }
+                }
+                
+                // Otherwise, it's a theme icon name. 
+                // We'll return it as is, and the frontend can try to resolve it 
+                // or we can try to find it here. 
+                // For now, let's just return the name and see if we can find a path.
+                
+                // Common locations for theme icons
+                let mut search_paths = vec![
+                    "/usr/share/icons/hicolor/scalable/apps".to_string(),
+                    "/usr/share/icons/hicolor/128x128/apps".to_string(),
+                    "/usr/share/icons/hicolor/64x64/apps".to_string(),
+                    "/usr/share/icons/hicolor/48x48/apps".to_string(),
+                    "/usr/share/pixmaps".to_string(),
+                ];
+
+                if let Some(home) = dirs::home_dir() {
+                    search_paths.push(format!("{}/.local/share/icons/hicolor/scalable/apps", home.display()));
+                    search_paths.push(format!("{}/.local/share/icons/hicolor/128x128/apps", home.display()));
+                }
+
+                // Add some common theme paths as well (Ubuntu/GNOME defaults)
+                search_paths.push("/usr/share/icons/Yaru/scalable/apps".to_string());
+                search_paths.push("/usr/share/icons/Adwaita/scalable/apps".to_string());
+                
+                for path in search_paths {
+                    for ext in ["svg", "png", "jpg", "xpm"] {
+                        let full_path = format!("{}/{}.{}", path, icon_val, ext);
+                        if Path::new(&full_path).exists() {
+                            return Some(full_path);
+                        }
+                    }
+                }
+                
+                // If we still didn't find it, it might be an absolute path that doesn't exist 
+                // or just a theme name we can't resolve.
+                // Return None so the fallback manager icon is used instead of a broken image.
+                return None;
+            }
+        }
+    }
+    None
 }
 
 // keep old non-paginated function for compatibility
