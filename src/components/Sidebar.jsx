@@ -1,4 +1,4 @@
-import { FiPackage, FiInfo } from "react-icons/fi";
+import { FiPackage, FiInfo, FiPieChart } from "react-icons/fi";
 import { SiDebian, SiSnapcraft, SiFlatpak } from "react-icons/si";
 import { PACKAGE_MANAGERS } from "../utils/appUtils";
 
@@ -21,6 +21,11 @@ const SIDEBAR_ITEMS = [
 ];
 
 const GENERAL_ITEMS = [
+  {
+    id: "usage",
+    label: "Usage",
+    icon: FiPieChart,
+  },
   {
     id: "about",
     label: "About",

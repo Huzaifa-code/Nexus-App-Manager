@@ -130,6 +130,24 @@ class AppService {
       console.error("Error opening path:", error);
     }
   }
+
+  async checkAppUpdate(name, manager) {
+    try {
+      return await invoke("check_app_update", { name, manager });
+    } catch (error) {
+      console.error("Error checking app update:", error);
+      throw error;
+    }
+  }
+
+  async updateApp(name, manager) {
+    try {
+      return await invoke("update_app", { name, manager });
+    } catch (error) {
+      console.error("Error updating app:", error);
+      throw error;
+    }
+  }
 }
 
 export default new AppService();

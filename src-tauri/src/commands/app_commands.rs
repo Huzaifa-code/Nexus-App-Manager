@@ -2,7 +2,9 @@ use crate::services::apt_service;
 use crate::services::snap_service;
 use crate::services::flatpak_service;
 use crate::services::uninstall_service;
+use crate::services::update_service;
 use crate::services::cache_service::CacheService;
+use crate::services::storage_service;
 use serde::Serialize;
 
 #[tauri::command]
@@ -75,4 +77,19 @@ pub async fn open_path(path: String) -> Result<(), String> {
 #[tauri::command]
 pub async fn read_image_bytes(path: String) -> Result<Vec<u8>, String> {
     std::fs::read(&path).map_err(|e| format!("Failed to read image: {}", e))
+}
+
+#[tauri::command]
+pub async fn check_app_update(name: String, manager: String) -> Result<Option<String>, String> {
+    update_service::check_update(name, manager)
+}
+
+#[tauri::command]
+pub async fn update_app(name: String, manager: String) -> Result<String, String> {
+    update_service::update_app(name, manager)
+}
+
+#[tauri::command]
+pub async fn get_storage_usage() -> Result<storage_service::StorageUsage, String> {
+    storage_service::get_storage_usage()
 }

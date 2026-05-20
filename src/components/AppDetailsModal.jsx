@@ -4,11 +4,20 @@ import { FiX, FiPackage, FiInfo, FiFolder, FiCpu, FiUser, FiExternalLink, FiLaye
 import { getManagerIcon, getDisplayName } from "../utils/appUtils";
 import appService from "../services/appService";
 
-const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
+const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling, showToast }) => {
   if (!app) return null;
 
   const displayName = getDisplayName(app);
   const [iconSrc, setIconSrc] = useState(null);
+  
+  const [updateStatus, setUpdateStatus] = useState("idle"); // idle, checking, available, up-to-date, updating, updated
+  const [newVersion, setNewVersion] = useState(null);
+
+  // Reset state when app changes
+  useEffect(() => {
+    setUpdateStatus("idle");
+    setNewVersion(null);
+  }, [app]);
 
   useEffect(() => {
     let url = null;
@@ -34,6 +43,36 @@ const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
   const handleOpenPath = () => {
     if (app.path) {
       appService.openPath(app.path);
+    }
+  };
+
+  const handleCheckUpdate = async () => {
+    setUpdateStatus("checking");
+    try {
+      const version = await appService.checkAppUpdate(app.name, app.manager);
+      if (version) {
+        setNewVersion(version);
+        setUpdateStatus("available");
+      } else {
+        setUpdateStatus("up-to-date");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(`Failed to check for updates: ${err}`, 'error');
+      setUpdateStatus("idle");
+    }
+  };
+
+  const handleUpdate = async () => {
+    setUpdateStatus("updating");
+    try {
+      await appService.updateApp(app.name, app.manager);
+      setUpdateStatus("updated");
+      showToast(`Successfully updated ${displayName} to ${newVersion}`, 'success');
+    } catch (err) {
+      console.error(err);
+      showToast(`Failed to update ${displayName}: ${err}`, 'error');
+      setUpdateStatus("available");
     }
   };
 
@@ -128,9 +167,9 @@ const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <button
               onClick={() => onUninstall(app)}
-              disabled={isUninstalling}
+              disabled={isUninstalling || updateStatus === "updating"}
               className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-bold transition-all ${
-                isUninstalling
+                isUninstalling || updateStatus === "updating"
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white shadow-sm"
               }`}
@@ -144,6 +183,36 @@ const AppDetailsModal = ({ app, onClose, onUninstall, isUninstalling }) => {
                 </>
               )}
             </button>
+            
+            {updateStatus !== "up-to-date" && updateStatus !== "updated" && (
+              <button
+                onClick={updateStatus === "available" ? handleUpdate : handleCheckUpdate}
+                disabled={updateStatus === "checking" || updateStatus === "updating" || isUninstalling}
+                className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-bold transition-all ${
+                  updateStatus === "checking" || updateStatus === "updating" || isUninstalling
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : updateStatus === "available"
+                    ? "bg-green-500 text-white hover:bg-green-600 shadow-sm"
+                    : "bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm"
+                }`}
+              >
+                {updateStatus === "checking" || updateStatus === "updating" ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                ) : (
+                  <>
+                    <FiLayers className="w-5 h-5" />
+                    <span>{updateStatus === "available" ? `Update to ${newVersion}` : "Check for Updates"}</span>
+                  </>
+                )}
+              </button>
+            )}
+            
+            {(updateStatus === "up-to-date" || updateStatus === "updated") && (
+              <div className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-bold bg-green-50 text-green-600">
+                <FiShield className="w-5 h-5" />
+                <span>{updateStatus === "updated" ? "Updated Successfully" : "App is Up to Date"}</span>
+              </div>
+            )}
           </div>
         </div>
 

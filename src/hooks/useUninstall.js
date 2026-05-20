@@ -2,35 +2,44 @@ import { useState } from "react";
 import appService from "../services/appService";
 import { getDisplayName, requiresPassword } from "../utils/appUtils";
 
-export const useUninstall = (onSuccess) => {
+export const useUninstall = (onSuccess, showToast) => {
   const [uninstalling, setUninstalling] = useState(null);
+  const [confirmModalConfig, setConfirmModalConfig] = useState({ isOpen: false, app: null });
 
-  const handleUninstall = async (app) => {
-    const displayName = getDisplayName(app);
-    const needsPassword = requiresPassword(app.manager);
+  const requestUninstall = (app) => {
+    setConfirmModalConfig({ isOpen: true, app });
+  };
+
+  const handleConfirmUninstall = async () => {
+    const { app } = confirmModalConfig;
+    if (!app) return;
     
-    const confirmMessage = `Are you sure you want to uninstall ${displayName}?${
-      needsPassword ? "\n\nA password dialog will appear to confirm the uninstallation." : ""
-    }`;
-
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
+    setConfirmModalConfig({ isOpen: false, app: null });
+    const displayName = getDisplayName(app);
     setUninstalling(app.name);
+    
     try {
       await appService.uninstallApp(app.name, app.manager);
-      window.alert(`Successfully uninstalled ${displayName}`);
+      showToast(`Successfully uninstalled ${displayName}`, 'success');
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      window.alert(`Failed to uninstall ${displayName}: ${error}`);
+      showToast(`Failed to uninstall ${displayName}: ${error}`, 'error');
     } finally {
       setUninstalling(null);
     }
   };
 
-  return { uninstalling, handleUninstall };
-};
+  const handleCancelUninstall = () => {
+    setConfirmModalConfig({ isOpen: false, app: null });
+  };
 
+  return { 
+    uninstalling, 
+    requestUninstall, 
+    handleConfirmUninstall, 
+    handleCancelUninstall,
+    confirmModalConfig
+  };
+};

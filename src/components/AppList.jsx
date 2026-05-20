@@ -55,9 +55,7 @@ const AppList = ({ apps, searchQuery, loading, loadingMore, loadMore, hasMore, o
 
       {(hasMore || loadingMore) && (
         <div ref={observerTargetRef} className="col-span-full py-8 text-center">
-          <div className="inline-block">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-          </div>
+          <Loader type="spinner" text="" fullHeight={false} spinnerSizeClass="h-8 w-8" />
         </div>
       )}
     </div>

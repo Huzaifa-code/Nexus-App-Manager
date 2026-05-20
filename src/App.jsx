@@ -10,7 +10,10 @@ import { filterApps } from "./utils/appUtils";
 import "./index.css";
 
 import About from "./components/About";
+import Usage from "./components/Usage";
 import AppDetailsModal from "./components/AppDetailsModal";
+import ConfirmModal from "./components/ConfirmModal";
+import Toast from "./components/Toast";
 
 function App() {
   const [activeTab, setActiveTab] = useState(PACKAGE_MANAGERS.APT);
@@ -18,15 +21,26 @@ function App() {
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
   const [selectedAppForDetails, setSelectedAppForDetails] = useState(null);
 
+  const [toastMessage, setToastMessage] = useState(null);
+  
+  const showToast = (text, type = 'success') => setToastMessage({ text, type });
+  const clearToast = () => setToastMessage(null);
+
   const { apps: tabApps, loading: tabLoading, loadingMore: tabLoadingMore, reloadApps: reloadTabApps, loadMore: loadMoreTab, hasMore: tabHasMore } = useApps(activeTab);
   const { apps: globalApps, loading: globalLoading, reloadApps: reloadGlobalApps } = useGlobalApps();
-  const { uninstalling, handleUninstall } = useUninstall(() => {
+  const { 
+    uninstalling, 
+    requestUninstall, 
+    handleConfirmUninstall, 
+    handleCancelUninstall,
+    confirmModalConfig
+  } = useUninstall(() => {
     if (isGlobalSearch) {
       reloadGlobalApps();
     } else {
       reloadTabApps();
     }
-  });
+  }, showToast);
 
   const apps = isGlobalSearch ? globalApps : tabApps;
   const loading = isGlobalSearch ? globalLoading : tabLoading;
@@ -48,6 +62,8 @@ function App() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'about' ? (
           <About />
+        ) : activeTab === 'usage' ? (
+          <Usage />
         ) : (
           <>
             <Header
@@ -68,7 +84,7 @@ function App() {
                 loadingMore={loadingMore}
                 loadMore={loadMore}
                 hasMore={hasMore}
-                onUninstall={handleUninstall}
+                onUninstall={requestUninstall}
                 uninstalling={uninstalling}
                 onAppClick={setSelectedAppForDetails}
               />
@@ -80,8 +96,25 @@ function App() {
       <AppDetailsModal
         app={selectedAppForDetails}
         onClose={() => setSelectedAppForDetails(null)}
-        onUninstall={handleUninstall}
+        onUninstall={requestUninstall}
         isUninstalling={uninstalling === selectedAppForDetails?.name}
+        showToast={showToast}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModalConfig.isOpen}
+        onClose={handleCancelUninstall}
+        onConfirm={handleConfirmUninstall}
+        title="Confirm Uninstall"
+        message={`Are you sure you want to uninstall ${confirmModalConfig.app?.name}?\n\nA password dialog may appear depending on the package manager.`}
+        isDestructive={true}
+        confirmText="Uninstall"
+      />
+
+      <Toast 
+        message={toastMessage?.text}
+        type={toastMessage?.type}
+        onClose={clearToast}
       />
     </div>
   );
